@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ExternalLink, Grid2X2, PlaySquare, Image as ImageIcon, X, ChevronLeft } from 'lucide-react';
 import { ShowcaseMedia } from '../types';
 import { MediaPreview } from '../components/MediaPreview';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export function GalleryView({
   publishedMedia,
@@ -14,6 +15,7 @@ export function GalleryView({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState('');
+  const { t } = useLanguage();
 
   const filteredMedia = useMemo(
     () => publishedMedia.filter(m => m.mediaType === mediaType),
@@ -48,16 +50,16 @@ export function GalleryView({
             {mediaType === 'image' ? 'Image Gallery' : 'Video Gallery'}
           </h2>
           <h1 className="text-2xl md:text-3xl font-black text-white">
-            {mediaType === 'image' ? '画像ギャラリー' : '映像ギャラリー'}
+            {mediaType === 'image' ? t('gallery.imageTitle') : t('gallery.videoTitle')}
           </h1>
         </div>
         <button
           onClick={onBack}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-all shadow-lg"
-          title="ホームに戻る"
+          title={t('gallery.backToHome')}
         >
           <ChevronLeft size={18} />
-          <span className="hidden md:inline font-bold text-sm">ホームに戻る</span>
+          <span className="hidden md:inline font-bold text-sm">{t('gallery.backToHome')}</span>
         </button>
       </div>
 
@@ -96,8 +98,8 @@ export function GalleryView({
             <div className="grid h-20 w-20 place-items-center rounded-full bg-black/50 border border-white/10 mb-6 shadow-inner">
               <Grid2X2 className="text-zinc-500" size={32} />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">作品がありません</h2>
-            <p className="text-sm text-zinc-400">右上の「管理画面」から動画や画像を追加してください。</p>
+            <h2 className="text-xl font-bold text-white mb-2">{t('gallery.emptyTitle')}</h2>
+            <p className="text-sm text-zinc-400">{t('gallery.emptyDesc')}</p>
           </div>
         )}
       </section>
@@ -138,7 +140,7 @@ export function GalleryView({
                   className="inline-flex justify-center items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-white/10 hover:-translate-y-0.5 shadow-md"
                 >
                   <ExternalLink size={16} />
-                  新しいタブで開く
+                  {t('gallery.openNewTab')}
                 </a>
               </div>
             )}

@@ -1,7 +1,10 @@
 import React from 'react';
 import { PlaySquare, Image as ImageIcon, LayoutGrid, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image' | 'app') => void }) {
+  const { t } = useLanguage();
+
   return (
     <main className="mx-auto min-h-[calc(100dvh-73px)] max-w-7xl animate-in fade-in duration-700 flex flex-col items-center justify-center px-6 py-12">
       <div className="text-center mb-16 max-w-2xl">
@@ -9,7 +12,7 @@ export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image
           Creative <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Portfolio</span>
         </h1>
         <p className="text-lg text-zinc-400 leading-relaxed">
-          映像作品、デザイン、アプリケーションなどの制作物をまとめたギャラリーサイトです。カテゴリを選択して作品をご覧ください。
+          {t('home.description')}
         </p>
       </div>
 
@@ -23,10 +26,10 @@ export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image
           <div className="grid h-20 w-20 place-items-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-900/50 mb-6 group-hover:scale-110 transition-transform duration-500">
             <PlaySquare size={36} strokeWidth={1.5} />
           </div>
-          <h2 className="text-2xl font-black text-white mb-3">映像ギャラリー</h2>
-          <p className="text-sm text-zinc-400 mb-8 flex-1">ミュージックビデオやPR動画、アニメーションなどの映像作品一覧</p>
+          <h2 className="text-2xl font-black text-white mb-3">{t('home.videoGallery')}</h2>
+          <p className="text-sm text-zinc-400 mb-8 flex-1">{t('home.videoDesc')}</p>
           <div className="inline-flex items-center gap-2 text-teal-400 font-bold text-sm">
-            見る <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            {t('home.view')} <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </div>
         </button>
 
@@ -39,10 +42,10 @@ export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image
           <div className="grid h-20 w-20 place-items-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-900/50 mb-6 group-hover:scale-110 transition-transform duration-500">
             <ImageIcon size={36} strokeWidth={1.5} />
           </div>
-          <h2 className="text-2xl font-black text-white mb-3">画像ギャラリー</h2>
-          <p className="text-sm text-zinc-400 mb-8 flex-1">イラスト、UIデザイン、写真などの静止画作品一覧</p>
+          <h2 className="text-2xl font-black text-white mb-3">{t('home.imageGallery')}</h2>
+          <p className="text-sm text-zinc-400 mb-8 flex-1">{t('home.imageDesc')}</p>
           <div className="inline-flex items-center gap-2 text-rose-400 font-bold text-sm">
-            見る <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            {t('home.view')} <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </div>
         </button>
 
@@ -55,10 +58,10 @@ export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image
           <div className="grid h-20 w-20 place-items-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-900/50 mb-6 group-hover:scale-110 transition-transform duration-500">
             <LayoutGrid size={36} strokeWidth={1.5} />
           </div>
-          <h2 className="text-2xl font-black text-white mb-3">アプリギャラリー</h2>
-          <p className="text-sm text-zinc-400 mb-8 flex-1">開発したWebアプリケーションやツールの一覧</p>
+          <h2 className="text-2xl font-black text-white mb-3">{t('home.appGallery')}</h2>
+          <p className="text-sm text-zinc-400 mb-8 flex-1">{t('home.appDesc')}</p>
           <div className="inline-flex items-center gap-2 text-amber-400 font-bold text-sm">
-            見る <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            {t('home.view')} <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </div>
         </button>
       </div>

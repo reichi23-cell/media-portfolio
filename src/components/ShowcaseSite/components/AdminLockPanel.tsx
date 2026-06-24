@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, KeyRound, Mail, Loader2 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export function AdminLockPanel({
   onLoginSuccess,
@@ -11,10 +12,11 @@ export function AdminLockPanel({
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const handleSubmit = async () => {
     if (!email || !password) {
-      setError('メールアドレスとパスワードを入力してください。');
+      setError(t('lock.errorEmpty'));
       return;
     }
     setLoading(true);
@@ -28,7 +30,7 @@ export function AdminLockPanel({
     setLoading(false);
 
     if (signInError) {
-      setError('ログインに失敗しました。メールアドレスかパスワードが間違っています。');
+      setError(t('lock.errorFail'));
     } else if (data.session) {
       onLoginSuccess();
     }
@@ -44,8 +46,8 @@ export function AdminLockPanel({
             <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 text-teal-400 shadow-inner mb-4">
               <Lock size={28} />
             </div>
-            <h1 className="text-2xl font-black text-white">管理者ログイン</h1>
-            <p className="mt-2 text-sm text-zinc-400">Supabaseに登録したアカウントでログインしてください</p>
+            <h1 className="text-2xl font-black text-white">{t('lock.adminLogin')}</h1>
+            <p className="mt-2 text-sm text-zinc-400">{t('lock.loginDesc')}</p>
           </div>
 
           <div className="space-y-4">
@@ -57,7 +59,7 @@ export function AdminLockPanel({
                 value={email}
                 onChange={event => setEmail(event.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-black/50 pl-11 pr-4 py-3 text-sm text-white outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all placeholder:text-zinc-600"
-                placeholder="メールアドレス"
+                placeholder={t('lock.email')}
                 type="email"
                 autoComplete="email"
                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -72,7 +74,7 @@ export function AdminLockPanel({
                 value={password}
                 onChange={event => setPassword(event.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-black/50 pl-11 pr-4 py-3 text-sm text-white outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all placeholder:text-zinc-600"
-                placeholder="パスワード"
+                placeholder={t('lock.password')}
                 type="password"
                 autoComplete="current-password"
                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -87,7 +89,7 @@ export function AdminLockPanel({
               className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-teal-900/50 transition-all hover:bg-teal-500 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none"
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Lock size={18} />}
-              ログイン
+              {t('lock.login')}
             </button>
           </div>
         </div>

@@ -7,8 +7,18 @@ import { GalleryView } from './views/GalleryView';
 import { HomeView } from './views/HomeView';
 import { AppGalleryView } from './views/AppGalleryView';
 import { AdminLockPanel } from './components/AdminLockPanel';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 
-export default function ShowcaseSite({
+export default function ShowcaseSiteWrapper(props: any) {
+  return (
+    <LanguageProvider>
+      <ShowcaseSite {...props} />
+    </LanguageProvider>
+  );
+}
+
+function ShowcaseSite({
   onOpenEditor,
   onOpenRigLab,
 }: {
@@ -25,6 +35,7 @@ export default function ShowcaseSite({
   
   const [siteMode, setSiteMode] = useState<'home' | 'video' | 'image' | 'app' | 'admin'>('home');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const { t } = useLanguage();
 
   // Check initial session
   useEffect(() => {
@@ -77,7 +88,7 @@ export default function ShowcaseSite({
                 onClick={handleLogout}
                 className="text-xs font-bold text-zinc-500 hover:text-white transition-colors"
               >
-                ログアウト
+                Logout
               </button>
             </div>
             <AdminView
@@ -130,14 +141,17 @@ export default function ShowcaseSite({
             </div>
           </button>
           
-          {siteMode === 'admin' && (
-            <button
-              onClick={() => { window.location.hash = ''; setSiteMode('home'); }}
-              className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-white/10 hover:-translate-y-0.5"
-            >
-              <Home size={18} /> ホーム（ギャラリー）に戻る
-            </button>
-          )}
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            {siteMode === 'admin' && (
+              <button
+                onClick={() => { window.location.hash = ''; setSiteMode('home'); }}
+                className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-white/10 hover:-translate-y-0.5"
+              >
+                <Home size={18} /> {t('gallery.backToHome')}
+              </button>
+            )}
+          </div>
         </div>
       </header>
 

@@ -112,11 +112,20 @@ export function GalleryView({
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                 
                 <div className="absolute inset-0 z-20 flex flex-col justify-end p-5">
-                  <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-black/50 backdrop-blur-md px-2.5 py-1 border border-white/10 shadow-inner">
-                    <span className={`h-1.5 w-1.5 rounded-full ${item.mediaType === 'image' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]' : 'bg-teal-500 shadow-[0_0_8px_rgba(20,184,166,0.8)]'}`} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">
-                      {item.mediaType === 'image' ? 'Image' : 'Video'}
-                    </span>
+                  <div className="mb-2 flex flex-col items-start gap-1.5">
+                    <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/50 backdrop-blur-md px-2.5 py-1 border border-white/10 shadow-inner">
+                      <span className={`h-1.5 w-1.5 rounded-full ${item.mediaType === 'image' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]' : 'bg-teal-500 shadow-[0_0_8px_rgba(20,184,166,0.8)]'}`} />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">
+                        {item.mediaType === 'image' ? 'Image' : 'Video'}
+                      </span>
+                    </div>
+                    {item.aspectRatio && (
+                      <div className={`inline-flex w-fit items-center gap-1.5 rounded-full bg-black/50 backdrop-blur-md px-2 py-0.5 border ${item.aspectRatio === '16:9' ? 'border-blue-500/30' : 'border-amber-500/30'} shadow-inner`}>
+                        <span className={`text-[8px] font-black tracking-widest ${item.aspectRatio === '16:9' ? 'text-blue-400' : 'text-amber-400'}`}>
+                          {item.aspectRatio}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   {formatTitle(item.title) && (
                     <h3 className="text-lg font-bold text-white line-clamp-1">{formatTitle(item.title)}</h3>

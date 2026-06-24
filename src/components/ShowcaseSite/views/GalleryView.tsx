@@ -1,18 +1,28 @@
 import React, { useState, useMemo } from 'react';
-import { Settings, ExternalLink, Grid2X2, Globe2, LayoutDashboard, PlaySquare, Image as ImageIcon, X } from 'lucide-react';
-import { ShowcaseMedia, ShowcaseApp } from '../types';
+import { ExternalLink, Grid2X2, PlaySquare, Image as ImageIcon, X, ChevronLeft } from 'lucide-react';
+import { ShowcaseMedia } from '../types';
 import { MediaPreview } from '../components/MediaPreview';
 
 export function GalleryView({
-  publishedMedia, apps,
-  setSiteMode, selectedMediaId, setSelectedMediaId,
-  onOpenEditor, onOpenRigLab
-}: any) {
+  publishedMedia,
+  mediaType,
+  onBack,
+}: {
+  publishedMedia: ShowcaseMedia[];
+  mediaType: 'video' | 'image';
+  onBack: () => void;
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMediaId, setSelectedMediaId] = useState('');
+
+  const filteredMedia = useMemo(
+    () => publishedMedia.filter(m => m.mediaType === mediaType),
+    [publishedMedia, mediaType]
+  );
 
   const gallerySelectedMedia = useMemo(
-    () => publishedMedia.find((m: any) => m.id === selectedMediaId) || publishedMedia[0],
-    [publishedMedia, selectedMediaId]
+    () => filteredMedia.find((m: any) => m.id === selectedMediaId) || filteredMedia[0],
+    [filteredMedia, selectedMediaId]
   );
 
   const handleOpenModal = (id: string) => {
@@ -21,29 +31,33 @@ export function GalleryView({
   };
 
   return (
-    <main className="mx-auto min-h-[calc(100dvh-73px)] max-w-[1600px] animate-in fade-in duration-500 border-x border-white/5 bg-[#050505] relative flex flex-col">
+    <main className="mx-auto min-h-[calc(100dvh-73px)] max-w-[1600px] animate-in fade-in duration-500 bg-[#050505] relative flex flex-col">
       
       {/* Header Area */}
       <div className="flex items-center justify-between px-6 py-8 md:px-12 border-b border-white/10 bg-[#0a0a0a] shadow-md z-10 sticky top-0">
         <div>
-          <h2 className="text-[12px] font-black text-teal-400 uppercase tracking-[0.2em] mb-1">Portfolio Gallery</h2>
-          <h1 className="text-2xl md:text-3xl font-black text-white">作品ギャラリー</h1>
+          <h2 className="text-[12px] font-black text-teal-400 uppercase tracking-[0.2em] mb-1">
+            {mediaType === 'image' ? 'Image Gallery' : 'Video Gallery'}
+          </h2>
+          <h1 className="text-2xl md:text-3xl font-black text-white">
+            {mediaType === 'image' ? '画像ギャラリー' : '映像ギャラリー'}
+          </h1>
         </div>
         <button
-          onClick={() => setSiteMode('admin')}
+          onClick={onBack}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-all shadow-lg"
-          title="管理画面へ"
+          title="ホームに戻る"
         >
-          <Settings size={18} />
-          <span className="hidden md:inline font-bold text-sm">管理画面（動画を追加）</span>
+          <ChevronLeft size={18} />
+          <span className="hidden md:inline font-bold text-sm">ホームに戻る</span>
         </button>
       </div>
 
       {/* Media Grid */}
       <section className="flex-1 p-6 md:p-12">
-        {publishedMedia.length > 0 ? (
+        {filteredMedia.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {publishedMedia.map((item: any) => (
+            {filteredMedia.map((item: any) => (
               <button
                 key={item.id}
                 onClick={() => handleOpenModal(item.id)}
@@ -77,47 +91,6 @@ export function GalleryView({
           </div>
         )}
       </section>
-
-      {/* Apps Section */}
-      {apps.length > 0 && (
-        <section className="px-6 pb-16 md:px-12 border-t border-white/5 bg-gradient-to-b from-[#0a0a0a] to-[#050505] pt-12">
-          <div className="mb-8 flex items-center gap-4">
-            <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-900/50">
-              <Globe2 size={24} />
-            </div>
-            <div>
-              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400 mb-1">Applications</h2>
-              <h3 className="text-2xl font-black text-white">関連アプリ</h3>
-            </div>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {apps.map((app: any) => (
-              <div key={app.id} className="group rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl transition-all hover:border-amber-500/30 hover:bg-[#151515] hover:-translate-y-1 flex flex-col">
-                <p className="text-xl font-black text-white group-hover:text-amber-400 transition-colors">{app.name}</p>
-                <p className="mt-1 text-xs font-bold text-amber-500/80">{app.stack}</p>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-400 line-clamp-3 flex-1">{app.description}</p>
-                {app.url ? (
-                  <a
-                    href={app.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-6 inline-flex w-full justify-center items-center gap-2 rounded-xl bg-white/5 border border-white/5 px-4 py-3 text-sm font-bold text-white transition-all hover:bg-amber-600 hover:border-amber-500 shadow-md"
-                  >
-                    <ExternalLink size={16} /> アプリを開く
-                  </a>
-                ) : (
-                  <button
-                    onClick={onOpenEditor}
-                    className="mt-6 inline-flex w-full justify-center items-center gap-2 rounded-xl bg-teal-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-teal-900/50 transition-all hover:bg-teal-500"
-                  >
-                    <LayoutDashboard size={16} /> エディターを開く
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Modal Player */}
       {isModalOpen && gallerySelectedMedia && (

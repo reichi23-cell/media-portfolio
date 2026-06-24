@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BadgeInfo, Film, Globe2, PlaySquare, Image as ImageIcon, Plus, Upload, Trash2, ExternalLink } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { BadgeInfo, Film, Globe2, PlaySquare, Image as ImageIcon, Plus, Upload, Trash2, ExternalLink, X, ListFilter, ArrowDownUp } from 'lucide-react';
 import { ShowcaseMedia } from '../types';
 import { MediaPreview } from '../components/MediaPreview';
 import { AppPreview } from '../components/AppPreview';
@@ -21,6 +21,12 @@ export function AdminView({
   const [appStack, setAppStack] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
+  
+  // Filtering & Sorting
+  const [adminFilter, setAdminFilter] = useState<'all' | 'video' | 'image'>('all');
+  const [adminSort, setAdminSort] = useState<'newest' | 'oldest' | '16:9' | '9:16'>('newest');
+  const [previewItem, setPreviewItem] = useState<ShowcaseMedia | null>(null);
+
   const { t } = useLanguage();
   const selectedApp = apps.find((a: any) => a.id === selectedAppId) || apps[0];
 
@@ -40,6 +46,51 @@ export function AdminView({
     if (selectedItemIds.length === 0) return;
     removeMultipleMedia(selectedItemIds);
     setSelectedItemIds([]);
+  };
+
+  const filteredAndSortedItems = useMemo(() => {
+    let items = [...mediaItems];
+
+    if (adminFilter !== 'all') {
+      items = items.filter((item: any) => item.mediaType === adminFilter);
+    }
+
+    items.sort((a: any, b: any) => {
+      if (adminSort === 'newest') {
+        return (new Date(b.createdAt || 0).getTime()) - (new Date(a.createdAt || 0).getTime());
+      }
+      if (adminSort === 'oldest') {
+        return (new Date(a.createdAt || 0).getTime()) - (new Date(b.createdAt || 0).getTime());
+      }
+      if (adminSort === '16:9') {
+        if (a.aspectRatio === '16:9' && b.aspectRatio !== '16:9') return -1;
+        if (a.aspectRatio !== '16:9' && b.aspectRatio === '16:9') return 1;
+        return (new Date(b.createdAt || 0).getTime()) - (new Date(a.createdAt || 0).getTime());
+      }
+      if (adminSort === '9:16') {
+        if (a.aspectRatio === '9:16' && b.aspectRatio !== '9:16') return -1;
+        if (a.aspectRatio !== '9:16' && b.aspectRatio === '9:16') return 1;
+        return (new Date(b.createdAt || 0).getTime()) - (new Date(a.createdAt || 0).getTime());
+      }
+      return 0;
+    });
+
+    return items;
+  }, [mediaItems, adminFilter, adminSort]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (previewItem) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [previewItem]);
+
+  const handleDeletePreview = () => {
+    if (!previewItem) return;
+    if (window.confirm('このアイテムを削除してもよろしいですか？')) {
+      removeMedia(previewItem);
+      setPreviewItem(null);
+    }
   };
 
   const calculateAspectRatio = (file: File): Promise<string> => {
@@ -206,24 +257,55 @@ export function AdminView({
 
       <div className="space-y-8">
         <section className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-black text-white">{t('admin.managedMedia')} ({mediaItems.length})</h2>
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
-                <input type="checkbox" onChange={handleSelectAll} checked={mediaItems.length > 0 && selectedItemIds.length === mediaItems.length} className="w-4 h-4 rounded border-white/20 bg-black/50 accent-teal-500" />
-                <span>すべて選択</span>
-              </label>
-              <button
-                onClick={handleBulkDelete}
-                disabled={selectedItemIds.length === 0}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20"
-              >
-                <Trash2 size={16} /> 選択した項目を削除 ({selectedItemIds.length})
-              </button>
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 className="text-xl font-black text-white">{t('admin.managedMedia')} ({filteredAndSortedItems.length}/{mediaItems.length})</h2>
+            
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 rounded-xl bg-black/40 border border-white/5 p-1">
+                <ListFilter size={14} className="ml-2 text-zinc-500" />
+                <select 
+                  value={adminFilter} 
+                  onChange={(e) => setAdminFilter(e.target.value as any)}
+                  className="bg-transparent text-sm text-zinc-300 font-bold outline-none py-1.5 px-2 cursor-pointer appearance-none"
+                >
+                  <option value="all">すべてのメディア</option>
+                  <option value="video">動画のみ</option>
+                  <option value="image">画像のみ</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl bg-black/40 border border-white/5 p-1">
+                <ArrowDownUp size={14} className="ml-2 text-zinc-500" />
+                <select 
+                  value={adminSort} 
+                  onChange={(e) => setAdminSort(e.target.value as any)}
+                  className="bg-transparent text-sm text-zinc-300 font-bold outline-none py-1.5 px-2 cursor-pointer appearance-none"
+                >
+                  <option value="newest">追加日 (新しい順)</option>
+                  <option value="oldest">追加日 (古い順)</option>
+                  <option value="16:9">アスペクト比 (16:9)</option>
+                  <option value="9:16">アスペクト比 (9:16)</option>
+                </select>
+              </div>
             </div>
           </div>
+
+          <div className="mb-6 flex items-center justify-between p-3 rounded-xl bg-teal-500/5 border border-teal-500/10">
+            <label className="flex items-center gap-2 text-sm text-teal-400 font-bold cursor-pointer">
+              <input type="checkbox" onChange={handleSelectAll} checked={mediaItems.length > 0 && selectedItemIds.length === mediaItems.length} className="w-4 h-4 rounded border-white/20 bg-black/50 accent-teal-500" />
+              <span>すべて選択</span>
+            </label>
+            <button
+              onClick={handleBulkDelete}
+              disabled={selectedItemIds.length === 0}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20"
+            >
+              <Trash2 size={16} /> 選択した項目を削除 ({selectedItemIds.length})
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediaItems.map((item: any) => (
+            {filteredAndSortedItems.map((item: any) => (
               <div key={item.id} className={`group relative rounded-xl border transition-all flex flex-col ${selectedItemIds.includes(item.id) ? 'border-teal-500 bg-teal-500/10' : 'border-white/10 bg-[#1a1a1a] hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.15)]'}`}>
                 
                 <div className="absolute top-2 left-2 z-30">
@@ -237,12 +319,20 @@ export function AdminView({
                   <Trash2 size={18} />
                 </button>
                 
-                <div className="aspect-video w-full bg-black relative rounded-t-xl overflow-hidden">
+                <div 
+                  className="aspect-video w-full bg-black relative rounded-t-xl overflow-hidden cursor-pointer"
+                  onClick={() => setPreviewItem(item)}
+                >
                   <MediaPreview media={item} isThumbnail={true} />
                   <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]" />
+                  <div className="absolute inset-0 bg-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
+                    <span className="px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-white font-bold text-xs flex items-center gap-2 border border-white/10 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                      <ExternalLink size={14} /> プレビュー
+                    </span>
+                  </div>
                 </div>
                 
-                <div className="p-4 flex flex-col gap-2">
+                <div className="p-4 flex flex-col gap-2 cursor-pointer" onClick={() => setPreviewItem(item)}>
                   <div className="flex items-center gap-2">
                     <span className={`flex items-center justify-center h-6 w-6 rounded bg-black/30 ${item.mediaType === 'image' ? 'text-rose-400' : 'text-teal-400'}`}>
                       {item.mediaType === 'image' ? <ImageIcon size={14} /> : <PlaySquare size={14} />}
@@ -308,6 +398,35 @@ export function AdminView({
         </section>
         */}
       </div>
+      {/* Preview Modal */}
+      {previewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-12 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setPreviewItem(null)} />
+          
+          <div className="relative z-10 w-full max-w-6xl h-full flex flex-col bg-[#0a0a0a] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div className="flex items-center justify-between p-4 bg-black/50 border-b border-white/10 backdrop-blur-md">
+              <h3 className="text-white font-bold text-lg truncate flex-1">{previewItem.title}</h3>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleDeletePreview}
+                  className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl font-bold text-sm transition-colors border border-rose-500/20"
+                >
+                  <Trash2 size={16} /> 削除する
+                </button>
+                <button
+                  onClick={() => setPreviewItem(null)}
+                  className="p-2 rounded-xl bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 bg-black relative flex items-center justify-center p-4">
+              <MediaPreview media={previewItem} isThumbnail={false} className="max-h-full max-w-full rounded-xl object-contain shadow-2xl" />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

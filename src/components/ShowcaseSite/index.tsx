@@ -142,12 +142,12 @@ export default function ShowcaseSite({
     <div className="h-screen overflow-y-auto bg-[#0a0a0a] text-zinc-300 font-sans selection:bg-teal-500/30 selection:text-white">
       <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4">
-          <button onClick={() => { window.location.hash = ''; setSiteMode('home'); }} className="flex items-center gap-4 text-left outline-none group">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-900/50 transition-transform group-hover:scale-105">
+          <button onClick={() => { window.location.hash = '#admin'; setSiteMode('admin'); }} className="flex items-center gap-4 text-left outline-none group" title="管理画面へ">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-900/50 transition-transform group-hover:scale-105 group-active:scale-95">
               <MonitorPlay size={24} />
             </div>
             <div>
-              <p className="text-base font-black text-white tracking-wide group-hover:text-teal-400 transition-colors">Media App Showcase</p>
+              <p className="text-base font-black text-white tracking-wide transition-colors">Media App Showcase</p>
               <p className="text-xs font-semibold text-zinc-500 tracking-wider">PORTFOLIO / SHOWCASE</p>
             </div>
           </button>
@@ -164,17 +164,6 @@ export default function ShowcaseSite({
       </header>
 
       {renderContent()}
-
-      {/* Hidden Admin Link for easy access */}
-      {siteMode !== 'admin' && (
-        <a 
-          href="#admin"
-          className="fixed bottom-4 right-4 p-3 rounded-full bg-black/20 text-white/10 hover:text-white/50 hover:bg-black/50 transition-all duration-300 z-50 backdrop-blur-sm"
-          title="Admin"
-        >
-          <Lock size={16} />
-        </a>
-      )}
     </div>
   );
 }

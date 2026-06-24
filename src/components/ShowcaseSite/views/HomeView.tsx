@@ -9,7 +9,7 @@ export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image
     <main className="mx-auto min-h-[calc(100dvh-73px)] max-w-7xl animate-in fade-in duration-700 flex flex-col items-center justify-center px-6 py-12">
       <div className="text-center mb-16 max-w-2xl">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 tracking-tight">
-          Creative <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Portfolio</span>
+          AI Creative <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Portfolio</span>
         </h1>
         <p className="text-lg text-zinc-400 leading-relaxed">
           {t('home.description')}

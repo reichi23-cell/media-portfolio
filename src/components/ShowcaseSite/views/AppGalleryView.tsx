@@ -35,42 +35,6 @@ export function AppGalleryView({
       </div>
 
       <div className="p-6 md:p-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {/* Editor App (Hardcoded) */}
-        <div className="group rounded-3xl border border-white/10 bg-[#111] p-8 shadow-xl transition-all hover:border-teal-500/50 hover:bg-[#151515] hover:-translate-y-2 flex flex-col">
-          <div className="mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-900/50">
-            <LayoutDashboard size={28} />
-          </div>
-          <p className="text-2xl font-black text-white group-hover:text-teal-400 transition-colors">Editor</p>
-          <p className="mt-1 text-sm font-bold text-teal-500/80">Web Tool</p>
-          <p className="mt-4 text-sm leading-relaxed text-zinc-400 flex-1">
-            {t('appGallery.editorDesc')}
-          </p>
-          <button
-            onClick={onOpenEditor}
-            className="mt-8 inline-flex w-full justify-center items-center gap-2 rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-teal-900/50 transition-all hover:bg-teal-500"
-          >
-            <LayoutDashboard size={18} /> {t('appGallery.openEditor')}
-          </button>
-        </div>
-
-        {/* Rig Lab App (Hardcoded) */}
-        <div className="group rounded-3xl border border-white/10 bg-[#111] p-8 shadow-xl transition-all hover:border-sky-500/50 hover:bg-[#151515] hover:-translate-y-2 flex flex-col">
-          <div className="mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-900/50">
-            <Bone size={28} />
-          </div>
-          <p className="text-2xl font-black text-white group-hover:text-sky-400 transition-colors">Rig Lab</p>
-          <p className="mt-1 text-sm font-bold text-sky-500/80">3D Tool</p>
-          <p className="mt-4 text-sm leading-relaxed text-zinc-400 flex-1">
-            {t('appGallery.rigLabDesc')}
-          </p>
-          <button
-            onClick={onOpenRigLab}
-            className="mt-8 inline-flex w-full justify-center items-center gap-2 rounded-xl bg-sky-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-sky-900/50 transition-all hover:bg-sky-500"
-          >
-            <Bone size={18} /> {t('appGallery.openRigLab')}
-          </button>
-        </div>
-
         {/* Database Apps */}
         {apps.map((app) => (
           <div key={app.id} className="group rounded-3xl border border-white/10 bg-[#111] p-8 shadow-xl transition-all hover:border-amber-500/50 hover:bg-[#151515] hover:-translate-y-2 flex flex-col">

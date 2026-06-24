@@ -14,12 +14,4 @@ export const initialMedia: ShowcaseMedia[] = [
   },
 ];
 
-export const initialApps: ShowcaseApp[] = [
-  {
-    id: 'local-editor',
-    name: 'Google Veo Studio',
-    url: '',
-    description: '動画素材を並べて編集し、書き出しまで行う制作アプリ。',
-    stack: 'React / Vite / Electron',
-  },
-];
+export const initialApps: ShowcaseApp[] = [];

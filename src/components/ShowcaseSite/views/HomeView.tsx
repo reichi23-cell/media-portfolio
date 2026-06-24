@@ -16,7 +16,7 @@ export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
         {/* Video Gallery Card */}
         <button
           onClick={() => setSiteMode('video')}
@@ -45,22 +45,6 @@ export function HomeView({ setSiteMode }: { setSiteMode: (mode: 'video' | 'image
           <h2 className="text-2xl font-black text-white mb-3">{t('home.imageGallery')}</h2>
           <p className="text-sm text-zinc-400 mb-8 flex-1">{t('home.imageDesc')}</p>
           <div className="inline-flex items-center gap-2 text-rose-400 font-bold text-sm">
-            {t('home.view')} <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </div>
-        </button>
-
-        {/* App Gallery Card */}
-        <button
-          onClick={() => setSiteMode('app')}
-          className="group relative flex flex-col items-center text-center p-8 rounded-3xl border border-white/10 bg-[#111] overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/50 hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.3)]"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="grid h-20 w-20 place-items-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-900/50 mb-6 group-hover:scale-110 transition-transform duration-500">
-            <LayoutGrid size={36} strokeWidth={1.5} />
-          </div>
-          <h2 className="text-2xl font-black text-white mb-3">{t('home.appGallery')}</h2>
-          <p className="text-sm text-zinc-400 mb-8 flex-1">{t('home.appDesc')}</p>
-          <div className="inline-flex items-center gap-2 text-amber-400 font-bold text-sm">
             {t('home.view')} <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </div>
         </button>

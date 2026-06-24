@@ -182,6 +182,7 @@ export function AdminView({
           </div>
         </section>
 
+        {/* App Section Hidden for now
         <section className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative z-10">
@@ -200,6 +201,7 @@ export function AdminView({
             </div>
           </div>
         </section>
+        */}
       </aside>
 
       <div className="space-y-8">
@@ -270,6 +272,7 @@ export function AdminView({
           </div>
         </section>
 
+        {/* App Section Hidden for now
         <section className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
           <div className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl flex flex-col h-[500px]">
             <h2 className="mb-4 text-base font-bold text-white">{t('admin.appList')}</h2>
@@ -294,15 +297,16 @@ export function AdminView({
             <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400 mb-2">Featured App</p>
-                <h2 className="text-3xl font-black text-white">{selectedApp.name}</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">{selectedApp.description}</p>
+                <h2 className="text-3xl font-black text-white">{selectedApp?.name}</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400">{selectedApp?.description}</p>
               </div>
             </div>
             <div className="flex-1 mt-2">
-              <AppPreview app={selectedApp} onOpenEditor={onOpenEditor} onOpenRigLab={onOpenRigLab} />
+              {selectedApp && <AppPreview app={selectedApp} onOpenEditor={onOpenEditor} onOpenRigLab={onOpenRigLab} />}
             </div>
           </div>
         </section>
+        */}
       </div>
     </main>
   );

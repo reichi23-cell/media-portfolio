@@ -26,7 +26,7 @@ function ShowcaseSite({
   onOpenRigLab: () => void;
 }) {
   const {
-    mediaItems, apps, addMediaItem, addLocalMediaItems, removeMediaItem,
+    mediaItems, apps, addMediaItem, addLocalMediaItems, updateMediaAspectRatio, removeMediaItem, removeMultipleMediaItems,
     addAppItem, removeAppItem, publishedMedia
   } = useShowcaseData();
 
@@ -93,7 +93,9 @@ function ShowcaseSite({
             </div>
             <AdminView
               mediaItems={mediaItems} apps={apps}
-              addMedia={addMediaItem} addLocalMediaItems={addLocalMediaItems} removeMedia={removeMediaItem}
+              addMedia={addMediaItem} addLocalMediaItems={addLocalMediaItems} 
+              updateMediaAspectRatio={updateMediaAspectRatio}
+              removeMedia={removeMediaItem} removeMultipleMedia={removeMultipleMediaItems}
               addApp={addAppItem} removeApp={removeAppItem}
               selectedMediaId={selectedMediaId} setSelectedMediaId={setSelectedMediaId}
               selectedAppId={selectedAppId} setSelectedAppId={setSelectedAppId}

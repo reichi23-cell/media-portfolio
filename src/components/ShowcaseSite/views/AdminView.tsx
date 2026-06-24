@@ -7,7 +7,7 @@ import { supabase } from '../../../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export function AdminView({
-  mediaItems, apps, addMedia, addLocalMediaItems, removeMedia, addApp, removeApp,
+  mediaItems, apps, addMedia, addLocalMediaItems, updateMediaAspectRatio, removeMedia, removeMultipleMedia, addApp, removeApp,
   selectedMediaId, setSelectedMediaId, selectedAppId, setSelectedAppId,
   onOpenEditor, onOpenRigLab
 }: any) {
@@ -20,8 +20,27 @@ export function AdminView({
   const [appDescription, setAppDescription] = useState('');
   const [appStack, setAppStack] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
   const { t } = useLanguage();
   const selectedApp = apps.find((a: any) => a.id === selectedAppId) || apps[0];
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedItemIds(mediaItems.map((m: any) => m.id));
+    } else {
+      setSelectedItemIds([]);
+    }
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedItemIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedItemIds.length === 0) return;
+    removeMultipleMedia(selectedItemIds);
+    setSelectedItemIds([]);
+  };
 
   const calculateAspectRatio = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -187,10 +206,27 @@ export function AdminView({
         <section className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-black text-white">{t('admin.managedMedia')} ({mediaItems.length})</h2>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+                <input type="checkbox" onChange={handleSelectAll} checked={mediaItems.length > 0 && selectedItemIds.length === mediaItems.length} className="w-4 h-4 rounded border-white/20 bg-black/50 accent-teal-500" />
+                <span>すべて選択</span>
+              </label>
+              <button
+                onClick={handleBulkDelete}
+                disabled={selectedItemIds.length === 0}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20"
+              >
+                <Trash2 size={16} /> 選択した項目を削除 ({selectedItemIds.length})
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {mediaItems.map((item: any) => (
-              <div key={item.id} className="group relative rounded-xl border border-white/10 bg-[#1a1a1a] overflow-hidden transition-all hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.15)] flex flex-col">
+              <div key={item.id} className={`group relative rounded-xl border transition-all flex flex-col ${selectedItemIds.includes(item.id) ? 'border-teal-500 bg-teal-500/10' : 'border-white/10 bg-[#1a1a1a] hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.15)]'}`}>
+                
+                <div className="absolute top-2 left-2 z-30">
+                  <input type="checkbox" checked={selectedItemIds.includes(item.id)} onChange={() => toggleSelection(item.id)} className="w-5 h-5 rounded border-white/20 bg-black/50 accent-teal-500 cursor-pointer" />
+                </div>
                 <button
                   onClick={() => removeMedia(item)}
                   className="absolute top-2 right-2 z-20 flex h-10 w-10 items-center justify-center rounded-lg bg-black/60 text-white backdrop-blur-md transition-all hover:bg-rose-500 hover:text-white"
@@ -199,19 +235,35 @@ export function AdminView({
                   <Trash2 size={18} />
                 </button>
                 
-                <div className="aspect-video w-full bg-black relative">
-                  <MediaPreview media={item} />
-                  <div className="absolute inset-0 z-10 pointer-events-none rounded-t-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]" />
+                <div className="aspect-video w-full bg-black relative rounded-t-xl overflow-hidden">
+                  <MediaPreview media={item} isThumbnail={true} />
+                  <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]" />
                 </div>
                 
-                <div className="p-4 flex flex-col gap-1">
+                <div className="p-4 flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                     <span className={`flex items-center justify-center h-6 w-6 rounded bg-black/30 ${item.mediaType === 'image' ? 'text-rose-400' : 'text-teal-400'}`}>
                       {item.mediaType === 'image' ? <ImageIcon size={14} /> : <PlaySquare size={14} />}
                     </span>
                     <h3 className="font-bold text-white truncate text-sm flex-1">{item.title}</h3>
                   </div>
-                  <p className="text-xs text-zinc-500 truncate">{item.kind === 'file' ? 'Local file' : item.source || 'No URL'}</p>
+                  
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+                    <div className="flex rounded-lg bg-black/40 p-0.5 border border-white/5">
+                      <button
+                        onClick={() => updateMediaAspectRatio(item.id, '16:9')}
+                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${item.aspectRatio !== '9:16' ? 'bg-[#222] text-teal-400 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        16:9 (横長)
+                      </button>
+                      <button
+                        onClick={() => updateMediaAspectRatio(item.id, '9:16')}
+                        className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${item.aspectRatio === '9:16' ? 'bg-[#222] text-amber-400 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      >
+                        9:16 (縦長)
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

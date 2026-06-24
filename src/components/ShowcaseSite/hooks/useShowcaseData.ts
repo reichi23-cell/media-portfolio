@@ -66,6 +66,17 @@ export function useShowcaseData() {
     setMediaItems(prev => [...items, ...prev.filter(i => i.id !== 'sample-media')]);
   }, []);
 
+  const updateMediaAspectRatio = useCallback(async (id: string, newRatio: string) => {
+    // Optimistic UI update
+    setMediaItems(prev => prev.map(item => item.id === id ? { ...item, aspectRatio: newRatio } : item));
+
+    const { error } = await supabase.from('media_items').update({ aspect_ratio: newRatio }).eq('id', id);
+    if (error) {
+      console.error('Error updating aspect ratio:', error);
+      alert(`アスペクト比の更新に失敗しました: ${error.message}`);
+    }
+  }, []);
+
   const removeMediaItem = useCallback(async (itemOrId: string | ShowcaseMedia) => {
     // For backward compatibility during hot reloads
     const item = typeof itemOrId === 'string' ? mediaItems.find(i => i.id === itemOrId) : itemOrId;
@@ -96,6 +107,42 @@ export function useShowcaseData() {
     }
   }, [mediaItems]);
 
+  const removeMultipleMediaItems = useCallback(async (ids: string[]) => {
+    if (ids.length === 0) return;
+    if (!window.confirm(`${ids.length}件のアイテムを本当に削除してもよろしいですか？`)) return;
+
+    const itemsToDelete = mediaItems.filter(item => ids.includes(item.id));
+    
+    // Optimistic UI update
+    setMediaItems(prev => {
+      const next = prev.filter(i => !ids.includes(i.id));
+      return next.length ? next : initialMedia;
+    });
+
+    // Delete from storage
+    const filePaths: string[] = [];
+    for (const item of itemsToDelete) {
+      if (item.source.includes('supabase.co')) {
+        const urlParts = item.source.split('/media_files/');
+        if (urlParts.length > 1) {
+          const filePath = urlParts[1].split('?')[0];
+          filePaths.push(filePath);
+        }
+      }
+    }
+    
+    if (filePaths.length > 0) {
+      await supabase.storage.from('media_files').remove(filePaths);
+    }
+
+    // Remove from Supabase DB
+    const { error } = await supabase.from('media_items').delete().in('id', ids);
+    if (error) {
+      console.error('Error deleting multiple media:', error);
+      alert(`データベースからの削除に失敗しました: ${error.message}`);
+    }
+  }, [mediaItems]);
+
   const addAppItem = useCallback((app: ShowcaseApp) => {
     setApps(prev => [app, ...prev]);
   }, []);
@@ -116,7 +163,9 @@ export function useShowcaseData() {
     setApps,
     addMediaItem,
     addLocalMediaItems,
+    updateMediaAspectRatio,
     removeMediaItem,
+    removeMultipleMediaItems,
     addAppItem,
     removeAppItem,
     publishedMedia

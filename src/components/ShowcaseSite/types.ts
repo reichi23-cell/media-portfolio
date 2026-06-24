@@ -5,6 +5,8 @@ export type ShowcaseMedia = {
   note: string;
   kind: 'url' | 'file';
   mediaType: 'video' | 'image';
+  aspectRatio?: string;
+  createdAt?: string;
 };
 
 export type ShowcaseApp = {

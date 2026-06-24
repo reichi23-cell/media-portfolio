@@ -15,14 +15,16 @@ export function MediaPreview({ media, className = '', isThumbnail = false }: { m
     );
   }
 
+  const objectFitClass = isThumbnail && media.aspectRatio !== '9:16' ? 'object-cover' : 'object-contain';
+
   if (media.mediaType === 'image' || isImageSource(media.source)) {
-    return <img className={`h-full w-full ${isThumbnail ? 'object-cover' : 'object-contain'} ${className}`} src={media.source} alt={media.title} loading="lazy" />;
+    return <img className={`h-full w-full ${objectFitClass} ${className}`} src={media.source} alt={media.title} loading="lazy" />;
   }
 
   if (isDirectVideo(media.source)) {
     return (
       <video 
-        className={`h-full w-full ${isThumbnail ? 'object-cover' : 'object-contain'} ${className}`} 
+        className={`h-full w-full ${objectFitClass} ${className}`} 
         src={media.source} 
         controls={!isThumbnail} 
         playsInline 

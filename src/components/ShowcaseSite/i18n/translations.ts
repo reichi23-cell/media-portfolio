@@ -16,9 +16,14 @@ export const translations = {
     "gallery.backToHome": "Back to Home",
     "gallery.videoTitle": "Video Gallery",
     "gallery.imageTitle": "Image Gallery",
-    "gallery.emptyTitle": "No works available",
-    "gallery.emptyDesc": "Please add videos or images from the 'Admin Panel' on the top right.",
+    "gallery.emptyTitle": "No Media Yet",
+    "gallery.emptyDesc": "No media available in this gallery yet.",
     "gallery.openNewTab": "Open in new tab",
+    "gallery.sort": "Sort",
+    "gallery.sortNewest": "Newest First",
+    "gallery.sortOldest": "Oldest First",
+    "gallery.sort169": "Aspect Ratio: 16:9",
+    "gallery.sort916": "Aspect Ratio: 9:16",
 
     // App Gallery
     "appGallery.title": "Related Apps",
@@ -83,9 +88,14 @@ export const translations = {
     "gallery.backToHome": "ホームに戻る",
     "gallery.videoTitle": "映像ギャラリー",
     "gallery.imageTitle": "画像ギャラリー",
-    "gallery.emptyTitle": "作品がありません",
-    "gallery.emptyDesc": "右上の「管理画面」から動画や画像を追加してください。",
+    "gallery.emptyTitle": "まだメディアがありません",
+    "gallery.emptyDesc": "このギャラリーにはまだ何も投稿されていません。",
     "gallery.openNewTab": "新しいタブで開く",
+    "gallery.sort": "並び替え",
+    "gallery.sortNewest": "更新日が新しい順",
+    "gallery.sortOldest": "更新日が古い順",
+    "gallery.sort169": "アスペクト比: 横長 (16:9)",
+    "gallery.sort916": "アスペクト比: 縦長 (9:16)",
 
     // App Gallery
     "appGallery.title": "関連アプリ",

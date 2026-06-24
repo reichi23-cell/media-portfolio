@@ -27,7 +27,9 @@ export function useShowcaseData() {
           title: item.title,
           source: item.source,
           mediaType: item.media_type,
-          kind: item.kind, note: item.note || ""
+          kind: item.kind, note: item.note || "",
+          aspectRatio: item.aspect_ratio || "16:9",
+          createdAt: item.created_at
         }));
         setMediaItems(normalized);
       }
@@ -50,7 +52,8 @@ export function useShowcaseData() {
         title: item.title,
         source: item.source,
         media_type: item.mediaType,
-        kind: item.kind, note: item.note || ""
+        kind: item.kind, note: item.note || "",
+        aspect_ratio: item.aspectRatio || "16:9"
       });
       if (error) {
         console.error('Error saving media:', error);

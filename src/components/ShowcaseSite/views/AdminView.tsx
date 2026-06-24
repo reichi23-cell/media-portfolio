@@ -23,6 +23,27 @@ export function AdminView({
   const { t } = useLanguage();
   const selectedApp = apps.find((a: any) => a.id === selectedAppId) || apps[0];
 
+  const calculateAspectRatio = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(file);
+      if (file.type.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(url);
+          resolve(video.videoWidth >= video.videoHeight ? '16:9' : '9:16');
+        };
+        video.src = url;
+      } else {
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          resolve(img.width >= img.height ? '16:9' : '9:16');
+        };
+        img.src = url;
+      }
+    });
+  };
+
   const handleAddMedia = () => {
     if (!mediaTitle.trim() || !mediaSource.trim()) return;
     addMedia({
@@ -32,6 +53,7 @@ export function AdminView({
       note: mediaNote.trim(),
       kind: 'url',
       mediaType,
+      aspectRatio: '16:9', // Default for URL
     });
     setMediaTitle(''); setMediaSource(''); setMediaNote('');
   };
@@ -71,6 +93,7 @@ export function AdminView({
           note: '',
           kind: 'url',
           mediaType: isImage ? 'image' : 'video',
+          aspectRatio: await calculateAspectRatio(file),
         });
       }
     } finally {

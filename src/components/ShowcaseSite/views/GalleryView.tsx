@@ -15,12 +15,33 @@ export function GalleryView({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | '16:9' | '9:16'>('newest');
   const { t } = useLanguage();
 
-  const filteredMedia = useMemo(
-    () => publishedMedia.filter(m => m.mediaType === mediaType),
-    [publishedMedia, mediaType]
-  );
+  const filteredMedia = useMemo(() => {
+    let sorted = [...publishedMedia.filter(m => m.mediaType === mediaType)];
+    
+    sorted.sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      
+      if (sortBy === 'newest') return timeB - timeA;
+      if (sortBy === 'oldest') return timeA - timeB;
+      if (sortBy === '16:9') {
+        if (a.aspectRatio === '16:9' && b.aspectRatio !== '16:9') return -1;
+        if (a.aspectRatio !== '16:9' && b.aspectRatio === '16:9') return 1;
+        return timeB - timeA;
+      }
+      if (sortBy === '9:16') {
+        if (a.aspectRatio === '9:16' && b.aspectRatio !== '9:16') return -1;
+        if (a.aspectRatio !== '9:16' && b.aspectRatio === '9:16') return 1;
+        return timeB - timeA;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [publishedMedia, mediaType, sortBy]);
 
   const gallerySelectedMedia = useMemo(
     () => filteredMedia.find((m: any) => m.id === selectedMediaId) || filteredMedia[0],
@@ -53,14 +74,26 @@ export function GalleryView({
             {mediaType === 'image' ? t('gallery.imageTitle') : t('gallery.videoTitle')}
           </h1>
         </div>
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-all shadow-lg"
-          title={t('gallery.backToHome')}
-        >
-          <ChevronLeft size={18} />
-          <span className="hidden md:inline font-bold text-sm">{t('gallery.backToHome')}</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="rounded-xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm font-bold text-white outline-none focus:border-teal-500/50 shadow-lg"
+          >
+            <option value="newest">{t('gallery.sortNewest')}</option>
+            <option value="oldest">{t('gallery.sortOldest')}</option>
+            <option value="16:9">{t('gallery.sort169')}</option>
+            <option value="9:16">{t('gallery.sort916')}</option>
+          </select>
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-all shadow-lg"
+            title={t('gallery.backToHome')}
+          >
+            <ChevronLeft size={18} />
+            <span className="hidden md:inline font-bold text-sm">{t('gallery.backToHome')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Media Grid */}

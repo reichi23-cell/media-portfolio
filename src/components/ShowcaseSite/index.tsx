@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MonitorPlay } from 'lucide-react';
+import { MonitorPlay, Home, Lock } from 'lucide-react';
 import { useShowcaseData } from './hooks/useShowcaseData';
 import { hashPassword } from './utils';
 import { ADMIN_LOCK_KEY } from './constants';
@@ -152,11 +152,29 @@ export default function ShowcaseSite({
             </div>
           </button>
           
-          {/* Header Buttons Removed for Clean Public View */}
+          {siteMode === 'admin' && (
+            <button
+              onClick={() => { window.location.hash = ''; setSiteMode('home'); }}
+              className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-white/10 hover:-translate-y-0.5"
+            >
+              <Home size={18} /> ホーム（ギャラリー）に戻る
+            </button>
+          )}
         </div>
       </header>
 
       {renderContent()}
+
+      {/* Hidden Admin Link for easy access */}
+      {siteMode !== 'admin' && (
+        <a 
+          href="#admin"
+          className="fixed bottom-4 right-4 p-3 rounded-full bg-black/20 text-white/10 hover:text-white/50 hover:bg-black/50 transition-all duration-300 z-50 backdrop-blur-sm"
+          title="Admin"
+        >
+          <Lock size={16} />
+        </a>
+      )}
     </div>
   );
 }

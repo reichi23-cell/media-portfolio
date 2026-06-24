@@ -29,7 +29,7 @@ export function AdminView({
       id: `media-${Date.now()}`,
       title: mediaTitle.trim(),
       source: mediaSource.trim(),
-      note: mediaNote.trim() || (mediaType === 'video' ? '制作動画' : '制作画像'),
+      note: mediaNote.trim(),
       kind: 'url',
       mediaType,
     });
@@ -68,7 +68,7 @@ export function AdminView({
           id: `media-${Date.now()}`,
           title: file.name.replace(/\.[^.]+$/, ''),
           source: publicUrl,
-          note: `直接アップロードされた${isImage ? '画像' : '動画'}`,
+          note: '',
           kind: 'url',
           mediaType: isImage ? 'image' : 'video',
         });

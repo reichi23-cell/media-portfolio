@@ -20,7 +20,7 @@ export function AdminView({
   const [appStack, setAppStack] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
-  const selectedMedia = mediaItems.find((m: any) => m.id === selectedMediaId) || mediaItems[0];
+
   const selectedApp = apps.find((a: any) => a.id === selectedAppId) || apps[0];
 
   const handleAddMedia = () => {
@@ -161,51 +161,37 @@ export function AdminView({
       </aside>
 
       <div className="space-y-8">
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_360px]">
-          <div className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl flex flex-col">
-            <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400 mb-2">Featured Media</p>
-                <h1 className="text-3xl font-black text-white">{selectedMedia.title}</h1>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => removeMedia(selectedMedia)}
-                  className="inline-flex items-center gap-2 rounded-lg bg-rose-500/10 border border-rose-500/20 px-4 py-2 text-sm font-bold text-rose-400 transition hover:bg-rose-500/20 hover:text-rose-300"
-                >
-                  <Trash2 size={16} /> 削除
-                </button>
-                {selectedMedia.source && (
-                  <a href={selectedMedia.source} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white">
-                    <ExternalLink size={16} /> 開く
-                  </a>
-                )}
-              </div>
-            </div>
-            <div className="flex-1 aspect-video overflow-hidden rounded-xl bg-[#050505] border border-white/5 shadow-inner">
-              <MediaPreview media={selectedMedia} />
-            </div>
-            <p className="mt-5 text-sm leading-relaxed text-zinc-400">{selectedMedia.note}</p>
+        <section className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-xl font-black text-white">管理メディア ({mediaItems.length})</h2>
           </div>
-
-          <div className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl flex flex-col h-[600px]">
-            <h2 className="mb-4 text-base font-bold text-white">メディアリスト</h2>
-            <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar">
-              {mediaItems.map((item: any) => (
-                <div key={item.id} className={`group flex items-center gap-3 rounded-xl border p-3 transition-all ${selectedMediaId === item.id ? 'border-teal-500/50 bg-teal-500/10' : 'border-white/5 bg-black/20 hover:border-white/20'}`}>
-                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${item.mediaType === 'image' ? 'bg-rose-500/10 text-rose-400' : 'bg-teal-500/10 text-teal-400'}`}>
-                    {item.mediaType === 'image' ? <ImageIcon size={18} /> : <PlaySquare size={18} />}
-                  </span>
-                  <button onClick={() => setSelectedMediaId(item.id)} className="min-w-0 flex-1 text-left outline-none">
-                    <p className="truncate text-sm font-bold text-zinc-200 group-hover:text-white transition-colors">{item.title}</p>
-                    <p className="truncate text-xs text-zinc-500">{item.kind === 'file' ? 'Local file' : item.source || 'No URL'}</p>
-                  </button>
-                  <button onClick={() => removeMedia(item)} className="rounded-lg p-2 text-zinc-600 transition hover:bg-rose-500/10 hover:text-rose-400" title="削除">
-                    <Trash2 size={16} />
-                  </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mediaItems.map((item: any) => (
+              <div key={item.id} className="group relative rounded-xl border border-white/10 bg-[#1a1a1a] overflow-hidden transition-all hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.15)] flex flex-col">
+                <button
+                  onClick={() => removeMedia(item)}
+                  className="absolute top-2 right-2 z-20 flex h-10 w-10 items-center justify-center rounded-lg bg-black/60 text-white backdrop-blur-md transition-all hover:bg-rose-500 hover:text-white"
+                  title="削除"
+                >
+                  <Trash2 size={18} />
+                </button>
+                
+                <div className="aspect-video w-full bg-black relative">
+                  <MediaPreview media={item} />
+                  <div className="absolute inset-0 z-10 pointer-events-none rounded-t-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]" />
                 </div>
-              ))}
-            </div>
+                
+                <div className="p-4 flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`flex items-center justify-center h-6 w-6 rounded bg-black/30 ${item.mediaType === 'image' ? 'text-rose-400' : 'text-teal-400'}`}>
+                      {item.mediaType === 'image' ? <ImageIcon size={14} /> : <PlaySquare size={14} />}
+                    </span>
+                    <h3 className="font-bold text-white truncate text-sm flex-1">{item.title}</h3>
+                  </div>
+                  <p className="text-xs text-zinc-500 truncate">{item.kind === 'file' ? 'Local file' : item.source || 'No URL'}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

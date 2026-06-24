@@ -3,6 +3,7 @@ import { BadgeInfo, Film, Globe2, PlaySquare, Image as ImageIcon, Plus, Upload, 
 import { ShowcaseMedia } from '../types';
 import { MediaPreview } from '../components/MediaPreview';
 import { AppPreview } from '../components/AppPreview';
+import { supabase } from '../../../lib/supabase';
 
 export function AdminView({
   mediaItems, apps, addMedia, addLocalMediaItems, removeMedia, addApp, removeApp,
@@ -17,6 +18,7 @@ export function AdminView({
   const [appUrl, setAppUrl] = useState('');
   const [appDescription, setAppDescription] = useState('');
   const [appStack, setAppStack] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const selectedMedia = mediaItems.find((m: any) => m.id === selectedMediaId) || mediaItems[0];
   const selectedApp = apps.find((a: any) => a.id === selectedAppId) || apps[0];
@@ -34,25 +36,47 @@ export function AdminView({
     setMediaTitle(''); setMediaSource(''); setMediaNote('');
   };
 
-  const handleAddLocalMedia = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddLocalMedia = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
-    const items = files.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/')).map((file, i): ShowcaseMedia => {
-      const isImage = file.type.startsWith('image/');
-      return {
-        id: `media-file-${Date.now()}-${i}`,
-        title: file.name.replace(/\.[^.]+$/, ''),
-        source: URL.createObjectURL(file),
-        note: `ローカルプレビュー用${isImage ? '画像' : '動画'}`,
-        kind: 'file',
-        mediaType: isImage ? 'image' : 'video',
-      };
-    });
-    if (items.length) {
-      addLocalMediaItems(items);
-      setSelectedMediaId(items[0].id);
+    
+    setIsUploading(true);
+    try {
+      for (const file of files) {
+        const isImage = file.type.startsWith('image/');
+        if (!isImage && !file.type.startsWith('video/')) continue;
+        
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `uploads/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('media_files')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          console.error('Error uploading file:', uploadError);
+          alert(`アップロードに失敗しました: ${uploadError.message}`);
+          continue;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('media_files')
+          .getPublicUrl(filePath);
+
+        addMedia({
+          id: `media-${Date.now()}`,
+          title: file.name.replace(/\.[^.]+$/, ''),
+          source: publicUrl,
+          note: `直接アップロードされた${isImage ? '画像' : '動画'}`,
+          kind: 'url',
+          mediaType: isImage ? 'image' : 'video',
+        });
+      }
+    } finally {
+      setIsUploading(false);
+      event.target.value = '';
     }
-    event.target.value = '';
   };
 
   const handleAddApp = () => {
@@ -103,14 +127,14 @@ export function AdminView({
                 <button onClick={handleAddMedia} className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-teal-900/20 transition-all hover:bg-teal-500 hover:-translate-y-0.5 active:translate-y-0">
                   <Plus size={16} /> 追加
                 </button>
-                <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-white transition-all hover:bg-white/10 hover:-translate-y-0.5">
-                  <Upload size={16} /> ファイル
-                  <input className="hidden" type="file" accept="video/*,image/*" multiple onChange={handleAddLocalMedia} />
+                <label className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white transition-all ${isUploading ? 'bg-white/20 cursor-not-allowed opacity-50' : 'bg-white/5 hover:bg-white/10 hover:-translate-y-0.5'}`}>
+                  <Upload size={16} /> {isUploading ? 'アップロード中...' : 'ファイル'}
+                  <input className="hidden" type="file" accept="video/*,image/*" multiple onChange={handleAddLocalMedia} disabled={isUploading} />
                 </label>
               </div>
               <p className="flex items-start gap-2 text-xs leading-5 text-zinc-500">
                 <BadgeInfo className="mt-0.5 shrink-0" size={14} />
-                URLは保存されます。ローカルファイルはブラウザを閉じるまでのプレビューです。
+                「ファイル」ボタンから直接アップロードした動画・画像はデータベースに保存され、世界中に公開されます！
               </p>
             </div>
           </div>

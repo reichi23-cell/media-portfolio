@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MonitorPlay, Home, Lock } from 'lucide-react';
 import { useShowcaseData } from './hooks/useShowcaseData';
-import { hashPassword } from './utils';
-import { ADMIN_LOCK_KEY } from './constants';
+import { supabase } from '../../lib/supabase';
 import { AdminView } from './views/AdminView';
 import { GalleryView } from './views/GalleryView';
 import { HomeView } from './views/HomeView';
@@ -25,11 +24,22 @@ export default function ShowcaseSite({
   const [selectedAppId, setSelectedAppId] = useState('');
   
   const [siteMode, setSiteMode] = useState<'home' | 'video' | 'image' | 'app' | 'admin'>('home');
-  const [adminPasswordHash, setAdminPasswordHash] = useState<string | null>(null);
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [adminPasswordConfirm, setAdminPasswordConfirm] = useState('');
-  const [adminLockError, setAdminLockError] = useState('');
+
+  // Check initial session
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAdminUnlocked(!!session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      setIsAdminUnlocked(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Handle Hash routing for admin
   useEffect(() => {
@@ -41,7 +51,6 @@ export default function ShowcaseSite({
       }
     };
     
-    // Initial check
     handleHashChange();
 
     window.addEventListener('hashchange', handleHashChange);
@@ -53,66 +62,35 @@ export default function ShowcaseSite({
     if (apps.length > 0 && !selectedAppId) setSelectedAppId(apps[0].id);
   }, [mediaItems, apps, selectedMediaId, selectedAppId]);
 
-  useEffect(() => {
-    setAdminPasswordHash(localStorage.getItem(ADMIN_LOCK_KEY));
-  }, []);
-
-  const handleAdminLockSubmit = async () => {
-    const trimmed = adminPassword.trim();
-    setAdminLockError('');
-
-    if (trimmed.length < 4) {
-      setAdminLockError('4文字以上で入力してください。');
-      return;
-    }
-
-    if (!adminPasswordHash) {
-      if (adminPassword !== adminPasswordConfirm) {
-        setAdminLockError('確認用パスワードが一致しません。');
-        return;
-      }
-      const nextHash = await hashPassword(adminPassword);
-      localStorage.setItem(ADMIN_LOCK_KEY, nextHash);
-      setAdminPasswordHash(nextHash);
-      setIsAdminUnlocked(true);
-      setAdminPassword('');
-      setAdminPasswordConfirm('');
-      return;
-    }
-
-    const inputHash = await hashPassword(adminPassword);
-    if (inputHash !== adminPasswordHash) {
-      setAdminLockError('パスワードが違います。');
-      return;
-    }
-
-    setIsAdminUnlocked(true);
-    setAdminPassword('');
-    setAdminPasswordConfirm('');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsAdminUnlocked(false);
   };
 
   const renderContent = () => {
     switch (siteMode) {
       case 'admin':
         return isAdminUnlocked ? (
-          <AdminView
-            mediaItems={mediaItems} apps={apps}
-            addMedia={addMediaItem} addLocalMediaItems={addLocalMediaItems} removeMedia={removeMediaItem}
-            addApp={addAppItem} removeApp={removeAppItem}
-            selectedMediaId={selectedMediaId} setSelectedMediaId={setSelectedMediaId}
-            selectedAppId={selectedAppId} setSelectedAppId={setSelectedAppId}
-            onOpenEditor={onOpenEditor} onOpenRigLab={onOpenRigLab}
-          />
+          <div className="animate-in fade-in duration-500">
+            <div className="mx-auto max-w-7xl px-5 py-4 flex justify-end">
+              <button
+                onClick={handleLogout}
+                className="text-xs font-bold text-zinc-500 hover:text-white transition-colors"
+              >
+                ログアウト
+              </button>
+            </div>
+            <AdminView
+              mediaItems={mediaItems} apps={apps}
+              addMedia={addMediaItem} addLocalMediaItems={addLocalMediaItems} removeMedia={removeMediaItem}
+              addApp={addAppItem} removeApp={removeAppItem}
+              selectedMediaId={selectedMediaId} setSelectedMediaId={setSelectedMediaId}
+              selectedAppId={selectedAppId} setSelectedAppId={setSelectedAppId}
+              onOpenEditor={onOpenEditor} onOpenRigLab={onOpenRigLab}
+            />
+          </div>
         ) : (
-          <AdminLockPanel
-            hasPassword={!!adminPasswordHash}
-            password={adminPassword}
-            confirmPassword={adminPasswordConfirm}
-            error={adminLockError}
-            onPasswordChange={setAdminPassword}
-            onConfirmPasswordChange={setAdminPasswordConfirm}
-            onSubmit={handleAdminLockSubmit}
-          />
+          <AdminLockPanel onLoginSuccess={() => setIsAdminUnlocked(true)} />
         );
       case 'video':
       case 'image':

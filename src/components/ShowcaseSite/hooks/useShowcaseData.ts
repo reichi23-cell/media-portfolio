@@ -54,6 +54,7 @@ export function useShowcaseData() {
       });
       if (error) {
         console.error('Error saving media:', error);
+        alert(`データベースの保存に失敗しました: ${error.message}`);
       }
     }
   }, []);

@@ -30,6 +30,14 @@ export function GalleryView({
     setIsModalOpen(true);
   };
 
+  const formatTitle = (title: string) => {
+    // If title is a long hash/UUID without spaces, return null to hide it
+    if (title && title.length > 25 && !title.includes(' ')) {
+      return null;
+    }
+    return title;
+  };
+
   return (
     <main className="mx-auto min-h-[calc(100dvh-73px)] max-w-[1600px] animate-in fade-in duration-500 bg-[#050505] relative flex flex-col">
       
@@ -75,7 +83,9 @@ export function GalleryView({
                       {item.mediaType === 'image' ? 'Image' : 'Video'}
                     </span>
                   </div>
-                  <h3 className="text-lg font-bold text-white line-clamp-1">{item.title}</h3>
+                  {formatTitle(item.title) && (
+                    <h3 className="text-lg font-bold text-white line-clamp-1">{formatTitle(item.title)}</h3>
+                  )}
                   <p className="mt-1 text-xs text-zinc-400 line-clamp-2">{item.note}</p>
                 </div>
               </button>
@@ -100,7 +110,9 @@ export function GalleryView({
             {/* Modal Header */}
             <div className="flex flex-shrink-0 items-center justify-between px-6 py-4 border-b border-white/10 bg-[#0a0a0a]">
               <div className="pr-12">
-                <h3 className="text-xl font-black text-white truncate">{gallerySelectedMedia.title}</h3>
+                {formatTitle(gallerySelectedMedia.title) && (
+                  <h3 className="text-xl font-black text-white truncate">{formatTitle(gallerySelectedMedia.title)}</h3>
+                )}
                 {gallerySelectedMedia.note && <p className="text-sm text-zinc-400 truncate mt-1">{gallerySelectedMedia.note}</p>}
               </div>
               <button

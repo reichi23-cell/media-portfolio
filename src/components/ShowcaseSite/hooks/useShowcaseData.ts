@@ -63,19 +63,35 @@ export function useShowcaseData() {
     setMediaItems(prev => [...items, ...prev.filter(i => i.id !== 'sample-media')]);
   }, []);
 
-  const removeMediaItem = useCallback(async (id: string) => {
+  const removeMediaItem = useCallback(async (itemOrId: string | ShowcaseMedia) => {
+    // For backward compatibility during hot reloads
+    const item = typeof itemOrId === 'string' ? mediaItems.find(i => i.id === itemOrId) : itemOrId;
+    const id = typeof itemOrId === 'string' ? itemOrId : itemOrId.id;
+
+    // Confirm deletion
+    if (!window.confirm('本当に削除してもよろしいですか？')) return;
+
     // Optimistic UI update
     setMediaItems(prev => {
-      const next = prev.filter(item => item.id !== id);
+      const next = prev.filter(i => i.id !== id);
       return next.length ? next : initialMedia;
     });
+
+    if (item && item.source.includes('supabase.co')) {
+      const urlParts = item.source.split('/media_files/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1].split('?')[0]; // Remove query params if any
+        await supabase.storage.from('media_files').remove([filePath]);
+      }
+    }
 
     // Remove from Supabase
     const { error } = await supabase.from('media_items').delete().eq('id', id);
     if (error) {
       console.error('Error deleting media:', error);
+      alert(`データベースからの削除に失敗しました: ${error.message}`);
     }
-  }, []);
+  }, [mediaItems]);
 
   const addAppItem = useCallback((app: ShowcaseApp) => {
     setApps(prev => [app, ...prev]);

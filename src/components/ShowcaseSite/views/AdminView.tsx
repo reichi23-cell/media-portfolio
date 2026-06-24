@@ -168,11 +168,19 @@ export function AdminView({
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-400 mb-2">Featured Media</p>
                 <h1 className="text-3xl font-black text-white">{selectedMedia.title}</h1>
               </div>
-              {selectedMedia.source && (
-                <a href={selectedMedia.source} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white">
-                  <ExternalLink size={16} /> 開く
-                </a>
-              )}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => removeMedia(selectedMedia)}
+                  className="inline-flex items-center gap-2 rounded-lg bg-rose-500/10 border border-rose-500/20 px-4 py-2 text-sm font-bold text-rose-400 transition hover:bg-rose-500/20 hover:text-rose-300"
+                >
+                  <Trash2 size={16} /> 削除
+                </button>
+                {selectedMedia.source && (
+                  <a href={selectedMedia.source} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white">
+                    <ExternalLink size={16} /> 開く
+                  </a>
+                )}
+              </div>
             </div>
             <div className="flex-1 aspect-video overflow-hidden rounded-xl bg-[#050505] border border-white/5 shadow-inner">
               <MediaPreview media={selectedMedia} />
@@ -192,7 +200,7 @@ export function AdminView({
                     <p className="truncate text-sm font-bold text-zinc-200 group-hover:text-white transition-colors">{item.title}</p>
                     <p className="truncate text-xs text-zinc-500">{item.kind === 'file' ? 'Local file' : item.source || 'No URL'}</p>
                   </button>
-                  <button onClick={() => removeMedia(item.id)} className="rounded-lg p-2 text-zinc-600 transition hover:bg-rose-500/10 hover:text-rose-400" title="削除">
+                  <button onClick={() => removeMedia(item)} className="rounded-lg p-2 text-zinc-600 transition hover:bg-rose-500/10 hover:text-rose-400" title="削除">
                     <Trash2 size={16} />
                   </button>
                 </div>

@@ -174,9 +174,31 @@ export function AdminView({
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
     
+    const duplicateFiles: string[] = [];
+    const validFiles: File[] = [];
+
+    for (const file of files) {
+      const fileNameWithoutExt = file.name.replace(/\.[^.]+$/, '');
+      const isDuplicate = mediaItems.some((item: any) => item.title === fileNameWithoutExt);
+      if (isDuplicate) {
+        duplicateFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    if (duplicateFiles.length > 0) {
+      alert(`以下のファイルは既に存在するためスキップされました:\n\n${duplicateFiles.join('\n')}`);
+    }
+
+    if (validFiles.length === 0) {
+      event.target.value = '';
+      return;
+    }
+    
     setIsUploading(true);
     try {
-      for (const file of files) {
+      for (const file of validFiles) {
         const isImage = file.type.startsWith('image/');
         if (!isImage && !file.type.startsWith('video/')) continue;
         

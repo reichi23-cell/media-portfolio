@@ -258,6 +258,66 @@ export function AdminView({
       </aside>
 
       <div className="space-y-8">
+        {/* Inbox Section */}
+        <section className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-xl font-black text-white">
+              <Inbox size={24} className="text-teal-500" />
+              受信トレイ ({messages.length})
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {messages.length === 0 ? (
+              <div className="py-12 text-center text-zinc-500">
+                メッセージはまだありません
+              </div>
+            ) : (
+              messages.map((msg: ShowcaseMessage) => (
+                <div key={msg.id} className={`p-5 rounded-xl border transition-all ${msg.is_read ? 'bg-black/20 border-white/5' : 'bg-teal-500/5 border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.1)]'}`}>
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${msg.is_read ? 'bg-white/5 text-zinc-500' : 'bg-teal-500/20 text-teal-400'}`}>
+                        {msg.is_read ? <MailOpen size={16} /> : <Mail size={16} />}
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-zinc-500">
+                          {new Date(msg.created_at).toLocaleString('ja-JP')}
+                        </span>
+                        {msg.contact_info && (
+                          <div className="text-sm font-bold text-teal-400 mt-0.5">
+                            返信先: {msg.contact_info}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!msg.is_read && (
+                        <button
+                          onClick={() => markMessageAsRead(msg.id)}
+                          className="px-3 py-1.5 text-xs font-bold rounded-lg bg-teal-500/10 text-teal-400 hover:bg-teal-500 hover:text-white transition-colors border border-teal-500/20"
+                        >
+                          既読にする
+                        </button>
+                      )}
+                      <button
+                        onClick={() => deleteMessage(msg.id)}
+                        className="p-1.5 rounded-lg text-zinc-500 hover:bg-rose-500/10 hover:text-rose-500 transition-colors"
+                        title="削除"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed">
+                    {msg.content}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
         <section className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl">
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="text-xl font-black text-white">{t('admin.managedMedia')} ({filteredAndSortedItems.length}/{mediaItems.length})</h2>
@@ -363,66 +423,6 @@ export function AdminView({
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Inbox Section */}
-        <section className="rounded-2xl border border-white/10 bg-[#111] p-6 shadow-xl">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-xl font-black text-white">
-              <Inbox size={24} className="text-teal-500" />
-              受信トレイ ({messages.length})
-            </h2>
-          </div>
-          
-          <div className="space-y-4">
-            {messages.length === 0 ? (
-              <div className="py-12 text-center text-zinc-500">
-                メッセージはまだありません
-              </div>
-            ) : (
-              messages.map((msg: ShowcaseMessage) => (
-                <div key={msg.id} className={`p-5 rounded-xl border transition-all ${msg.is_read ? 'bg-black/20 border-white/5' : 'bg-teal-500/5 border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.1)]'}`}>
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${msg.is_read ? 'bg-white/5 text-zinc-500' : 'bg-teal-500/20 text-teal-400'}`}>
-                        {msg.is_read ? <MailOpen size={16} /> : <Mail size={16} />}
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold text-zinc-500">
-                          {new Date(msg.created_at).toLocaleString('ja-JP')}
-                        </span>
-                        {msg.contact_info && (
-                          <div className="text-sm font-bold text-teal-400 mt-0.5">
-                            返信先: {msg.contact_info}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {!msg.is_read && (
-                        <button
-                          onClick={() => markMessageAsRead(msg.id)}
-                          className="px-3 py-1.5 text-xs font-bold rounded-lg bg-teal-500/10 text-teal-400 hover:bg-teal-500 hover:text-white transition-colors border border-teal-500/20"
-                        >
-                          既読にする
-                        </button>
-                      )}
-                      <button
-                        onClick={() => deleteMessage(msg.id)}
-                        className="p-1.5 rounded-lg text-zinc-500 hover:bg-rose-500/10 hover:text-rose-500 transition-colors"
-                        title="削除"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed">
-                    {msg.content}
-                  </div>
-                </div>
-              ))
-            )}
           </div>
         </section>
 

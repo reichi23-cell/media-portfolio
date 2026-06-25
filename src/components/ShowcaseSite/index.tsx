@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MonitorPlay, Home, Lock } from 'lucide-react';
+import { MonitorPlay, Home, Lock, MessageSquarePlus } from 'lucide-react';
 import { useShowcaseData } from './hooks/useShowcaseData';
 import { supabase } from '../../lib/supabase';
 import { AdminView } from './views/AdminView';
@@ -9,6 +9,7 @@ import { AppGalleryView } from './views/AppGalleryView';
 import { AdminLockPanel } from './components/AdminLockPanel';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { ContactModal } from './components/ContactModal';
 
 export default function ShowcaseSiteWrapper(props: any) {
   return (
@@ -27,7 +28,8 @@ function ShowcaseSite({
 }) {
   const {
     mediaItems, apps, addMediaItem, addLocalMediaItems, updateMediaAspectRatio, removeMediaItem, removeMultipleMediaItems,
-    addAppItem, removeAppItem, publishedMedia
+    addAppItem, removeAppItem, publishedMedia,
+    messages, addMessage, markMessageAsRead, deleteMessage
   } = useShowcaseData();
 
   const [selectedMediaId, setSelectedMediaId] = useState('');
@@ -35,6 +37,7 @@ function ShowcaseSite({
   
   const [siteMode, setSiteMode] = useState<'home' | 'video' | 'image' | 'app' | 'admin'>('home');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const { t } = useLanguage();
 
   // Check initial session
@@ -97,6 +100,7 @@ function ShowcaseSite({
               updateMediaAspectRatio={updateMediaAspectRatio}
               removeMedia={removeMediaItem} removeMultipleMedia={removeMultipleMediaItems}
               addApp={addAppItem} removeApp={removeAppItem}
+              messages={messages} markMessageAsRead={markMessageAsRead} deleteMessage={deleteMessage}
               selectedMediaId={selectedMediaId} setSelectedMediaId={setSelectedMediaId}
               selectedAppId={selectedAppId} setSelectedAppId={setSelectedAppId}
               onOpenEditor={onOpenEditor} onOpenRigLab={onOpenRigLab}
@@ -143,7 +147,15 @@ function ShowcaseSite({
             </div>
           </button>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
+            {siteMode !== 'admin' && (
+              <button
+                onClick={() => setIsContactModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-teal-500/10 border border-teal-500/20 px-3 md:px-4 py-2.5 text-sm font-bold text-teal-400 shadow-lg transition-all hover:bg-teal-500 hover:text-white"
+              >
+                <MessageSquarePlus size={18} /> <span className="hidden md:inline">Contact</span>
+              </button>
+            )}
             <LanguageSwitcher />
             {siteMode === 'admin' && (
               <button
@@ -158,6 +170,12 @@ function ShowcaseSite({
       </header>
 
       {renderContent()}
+
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        onSend={addMessage}
+      />
     </div>
   );
 }

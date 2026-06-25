@@ -9,10 +9,19 @@ export type ShowcaseMedia = {
   createdAt?: string;
 };
 
-export type ShowcaseApp = {
+export interface ShowcaseApp {
   id: string;
   name: string;
-  url: string;
   description: string;
-  stack: string;
-};
+  url: string;
+  stack?: string;
+  thumbnailUrl?: string;
+}
+
+export interface ShowcaseMessage {
+  id: string;
+  created_at: string;
+  content: string;
+  contact_info?: string;
+  is_read: boolean;
+}

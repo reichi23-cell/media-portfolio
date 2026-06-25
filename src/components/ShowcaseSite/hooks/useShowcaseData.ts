@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ShowcaseMedia, ShowcaseApp } from '../types';
+import { ShowcaseMedia, ShowcaseApp, ShowcaseMessage } from '../types';
 import { initialMedia, initialApps } from '../constants';
 import { isImageSource } from '../utils';
 import { supabase } from '../../../lib/supabase';
@@ -7,6 +7,7 @@ import { supabase } from '../../../lib/supabase';
 export function useShowcaseData() {
   const [mediaItems, setMediaItems] = useState<ShowcaseMedia[]>(initialMedia);
   const [apps, setApps] = useState<ShowcaseApp[]>(initialApps);
+  const [messages, setMessages] = useState<ShowcaseMessage[]>([]);
 
   // Fetch from Supabase on mount
   useEffect(() => {
@@ -35,7 +36,19 @@ export function useShowcaseData() {
       }
     };
 
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setMessages(data as ShowcaseMessage[]);
+      }
+    };
+
     fetchMedia();
+    fetchMessages();
     
     // For apps, we keep them static or local for now since it's just media items that are dynamic
     // If you want to also store apps in Supabase, you would create an `apps` table
@@ -154,6 +167,34 @@ export function useShowcaseData() {
     });
   }, []);
 
+  const addMessage = useCallback(async (content: string, contactInfo?: string) => {
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({ content, contact_info: contactInfo })
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
+    
+    if (data) {
+      setMessages(prev => [data as ShowcaseMessage, ...prev]);
+    }
+  }, []);
+
+  const markMessageAsRead = useCallback(async (id: string) => {
+    setMessages(prev => prev.map(m => m.id === id ? { ...m, is_read: true } : m));
+    await supabase.from('messages').update({ is_read: true }).eq('id', id);
+  }, []);
+
+  const deleteMessage = useCallback(async (id: string) => {
+    if (!window.confirm('このメッセージを削除しますか？')) return;
+    setMessages(prev => prev.filter(m => m.id !== id));
+    await supabase.from('messages').delete().eq('id', id);
+  }, []);
+
   const publishedMedia = useMemo(() => mediaItems.filter(item => item.source && item.id !== 'sample-media'), [mediaItems]);
 
   return {
@@ -168,6 +209,10 @@ export function useShowcaseData() {
     removeMultipleMediaItems,
     addAppItem,
     removeAppItem,
-    publishedMedia
+    publishedMedia,
+    messages,
+    addMessage,
+    markMessageAsRead,
+    deleteMessage
   };
 }

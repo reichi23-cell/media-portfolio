@@ -15,6 +15,7 @@ export function GalleryView({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMediaId, setSelectedMediaId] = useState('');
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | '16:9' | '9:16'>('newest');
   const { t } = useLanguage();
 
@@ -104,10 +105,12 @@ export function GalleryView({
               <button
                 key={item.id}
                 onClick={() => handleOpenModal(item.id)}
+                onMouseEnter={() => setHoveredItemId(item.id)}
+                onMouseLeave={() => setHoveredItemId(null)}
                 className="group relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black text-left shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-teal-500/50 hover:shadow-[0_10px_40px_-10px_rgba(20,184,166,0.3)] outline-none"
               >
                 <div className="absolute inset-0 z-0 opacity-60 transition-opacity duration-300 group-hover:opacity-100">
-                  <MediaPreview media={item} isThumbnail={true} />
+                  <MediaPreview media={item} isThumbnail={true} isHovered={hoveredItemId === item.id} />
                 </div>
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                 

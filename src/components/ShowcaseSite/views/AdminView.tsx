@@ -26,6 +26,7 @@ export function AdminView({
   const [adminFilter, setAdminFilter] = useState<'all' | 'video' | 'image'>('all');
   const [adminSort, setAdminSort] = useState<'newest' | 'oldest' | '16:9' | '9:16'>('newest');
   const [previewItem, setPreviewItem] = useState<ShowcaseMedia | null>(null);
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
 
   const { t } = useLanguage();
   const selectedApp = apps.find((a: any) => a.id === selectedAppId) || apps[0];
@@ -322,8 +323,10 @@ export function AdminView({
                 <div 
                   className="aspect-video w-full bg-black relative rounded-t-xl overflow-hidden cursor-pointer"
                   onClick={() => setPreviewItem(item)}
+                  onMouseEnter={() => setHoveredItemId(item.id)}
+                  onMouseLeave={() => setHoveredItemId(null)}
                 >
-                  <MediaPreview media={item} isThumbnail={true} />
+                  <MediaPreview media={item} isThumbnail={true} isHovered={hoveredItemId === item.id} />
                   <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]" />
                   <div className="absolute inset-0 bg-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
                     <span className="px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-white font-bold text-xs flex items-center gap-2 border border-white/10 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">

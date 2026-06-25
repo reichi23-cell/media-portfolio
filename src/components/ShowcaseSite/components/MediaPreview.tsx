@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Video } from 'lucide-react';
 import { ShowcaseMedia } from '../types';
 import { isDirectVideo, isImageSource, normalizeEmbedUrl } from '../utils';
@@ -31,6 +31,28 @@ export function MediaPreview({ media, className = '', isThumbnail = false, isHov
 
   if (isDirectVideo(media.source)) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [shouldLoad, setShouldLoad] = useState(() => {
+      if (typeof window === 'undefined') return true;
+      return !isThumbnail || window.innerWidth >= 768;
+    });
+
+    useEffect(() => {
+      if (shouldLoad || !videoRef.current) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin: '300px' }
+      );
+
+      observer.observe(videoRef.current);
+
+      return () => observer.disconnect();
+    }, [shouldLoad]);
 
     useEffect(() => {
       if (!isThumbnail) return;
@@ -41,15 +63,13 @@ export function MediaPreview({ media, className = '', isThumbnail = false, isHov
       if (isHovered) {
         // Play when hovered
         video.play().catch(() => {
-          // Ignore autoplay errors (usually due to browser policies, though muted autoplay rarely fails)
+          // Ignore autoplay errors
         });
       } else {
         // Pause and reset when unhovered
         video.pause();
-        // Option: reset to start when unhovered
-        // video.currentTime = 0;
       }
-    }, [isHovered, isThumbnail]);
+    }, [isHovered, isThumbnail, shouldLoad]);
 
     return (
       <video 
@@ -60,7 +80,7 @@ export function MediaPreview({ media, className = '', isThumbnail = false, isHov
         playsInline 
         muted={isThumbnail}
         loop={isThumbnail}
-        preload={isThumbnail ? "metadata" : "auto"}
+        preload={isThumbnail ? (shouldLoad ? "metadata" : "none") : "auto"}
         controlsList="nodownload"
         onContextMenu={(e) => e.preventDefault()}
       />

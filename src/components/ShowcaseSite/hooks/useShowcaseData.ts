@@ -30,7 +30,8 @@ export function useShowcaseData() {
           mediaType: item.media_type,
           kind: item.kind, note: item.note || "",
           aspectRatio: item.aspect_ratio || "16:9",
-          createdAt: item.created_at
+          createdAt: item.created_at,
+          thumbnailUrl: item.thumbnail_url
         }));
         setMediaItems(normalized);
       }
@@ -66,7 +67,8 @@ export function useShowcaseData() {
         source: item.source,
         media_type: item.mediaType,
         kind: item.kind, note: item.note || "",
-        aspect_ratio: item.aspectRatio || "16:9"
+        aspect_ratio: item.aspectRatio || "16:9",
+        thumbnail_url: item.thumbnailUrl
       });
       if (error) {
         console.error('Error saving media:', error);
@@ -79,7 +81,7 @@ export function useShowcaseData() {
     setMediaItems(prev => [...items, ...prev.filter(i => i.id !== 'sample-media')]);
   }, []);
 
-  const updateMediaAspectRatio = useCallback(async (id: string, newRatio: string) => {
+  const updateMediaAspectRatio = useCallback(async (id: string, newRatio: '16:9' | '9:16') => {
     // Optimistic UI update
     setMediaItems(prev => prev.map(item => item.id === id ? { ...item, aspectRatio: newRatio } : item));
 

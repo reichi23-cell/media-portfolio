@@ -5,8 +5,9 @@ export type ShowcaseMedia = {
   note: string;
   kind: 'url' | 'file';
   mediaType: 'video' | 'image';
-  aspectRatio?: string;
+  aspectRatio?: '16:9' | '9:16';
   createdAt?: string;
+  thumbnailUrl?: string;
 };
 
 export interface ShowcaseApp {

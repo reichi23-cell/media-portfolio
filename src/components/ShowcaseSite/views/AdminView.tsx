@@ -116,6 +116,46 @@ export function AdminView({
     });
   };
 
+  const generateThumbnail = (file: File): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('video/')) {
+        resolve(null);
+        return;
+      }
+      const video = document.createElement('video');
+      const url = URL.createObjectURL(file);
+      video.src = url;
+      video.muted = true;
+      video.playsInline = true;
+
+      video.onloadeddata = () => {
+        video.currentTime = Math.min(1, video.duration / 2 || 0);
+      };
+
+      video.onseeked = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            URL.revokeObjectURL(url);
+            resolve(blob);
+          }, 'image/jpeg', 0.7);
+        } else {
+          URL.revokeObjectURL(url);
+          resolve(null);
+        }
+      };
+      
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+    });
+  };
+
   const handleAddMedia = () => {
     if (!mediaTitle.trim() || !mediaSource.trim()) return;
     addMedia({
@@ -158,6 +198,24 @@ export function AdminView({
           .from('media_files')
           .getPublicUrl(filePath);
 
+        let thumbnailUrl: string | undefined;
+        if (!isImage) {
+          const thumbBlob = await generateThumbnail(file);
+          if (thumbBlob) {
+            const thumbPath = `uploads/thumb_${fileName.split('.')[0]}.jpg`;
+            const { error: thumbError } = await supabase.storage
+              .from('media_files')
+              .upload(thumbPath, thumbBlob);
+            
+            if (!thumbError) {
+              const { data: { publicUrl: thumbUrl } } = supabase.storage
+                .from('media_files')
+                .getPublicUrl(thumbPath);
+              thumbnailUrl = thumbUrl;
+            }
+          }
+        }
+
         addMedia({
           id: `media-${Date.now()}`,
           title: file.name.replace(/\.[^.]+$/, ''),
@@ -166,6 +224,7 @@ export function AdminView({
           kind: 'url',
           mediaType: isImage ? 'image' : 'video',
           aspectRatio: await calculateAspectRatio(file),
+          thumbnailUrl,
         });
       }
     } finally {

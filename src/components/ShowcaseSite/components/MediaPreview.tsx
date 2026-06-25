@@ -80,6 +80,7 @@ export function MediaPreview({ media, className = '', isThumbnail = false, isHov
         playsInline 
         muted={isThumbnail}
         loop={isThumbnail}
+        poster={media.thumbnailUrl}
         preload={isThumbnail ? (shouldLoad ? "metadata" : "none") : "auto"}
         controlsList="nodownload"
         onContextMenu={(e) => e.preventDefault()}
